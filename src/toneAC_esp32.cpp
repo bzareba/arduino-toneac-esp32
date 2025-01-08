@@ -36,8 +36,8 @@ void toneAC_init() {
     mcpwm_deadtime_enable(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_ACTIVE_HIGH_COMPLIMENT_MODE, 0, 0);
     mcpwm_stop(MCPWM_UNIT_0, MCPWM_TIMER_0);
     // Initialize timer
-    _tAC_timer = timerBegin(0, ESP.getCpuFreqMHz(), true);
-    timerAttachInterrupt(_tAC_timer, &onTimer, true);
+    _tAC_timer = timerBegin(1);
+    timerAttachInterrupt(_tAC_timer, &onTimer);
   });
 }
 
@@ -50,14 +50,12 @@ void toneAC_playNote(unsigned long frequency, uint8_t volume) {
 }
 
 void noToneAC() {
-  timerAlarmDisable(_tAC_timer);
+  timerEnd(_tAC_timer);
   mcpwm_stop(MCPWM_UNIT_0, MCPWM_TIMER_0);
 }
 
 void noToneAC_setTimer(unsigned long delay) {
-  timerAlarmWrite(_tAC_timer, delay * 1000, false);
-  timerRestart(_tAC_timer);
-  timerAlarmEnable(_tAC_timer);
+  timerAlarm(_tAC_timer, delay * 1000, false, 0);
 }
 
 static void IRAM_ATTR onTimer() {
